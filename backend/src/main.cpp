@@ -1,11 +1,11 @@
 #include "crow.h"
 #include <memory>
 #include <iostream>
-#include "../include/ParkingLot.h"
-#include "../include/Car.h"
-#include "../include/Motorcycle.h"
-#include "../include/Truck.h"
-#include "../include/Ticket.h"
+#include "ParkingLot.h"
+#include "Car.h"
+#include "Motorcycle.h"
+#include "Truck.h"
+#include "Ticket.h"
 
 // Helper to attach CORS headers to all HTTP responses
 inline crow::response add_cors_headers(crow::response res)
@@ -31,8 +31,7 @@ int main()
             res.add_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
             res.add_header("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
             res.code = 200;
-            res.end();
-         });
+            res.end(); });
 
         // Initialize our Singleton Engine with 3 Levels (6 spots per level)
         ParkingLot &lot = ParkingLot::getInstance();
@@ -76,12 +75,11 @@ int main()
             }
             response["levels"] = std::move(levels_json);
 
-            return add_cors_headers(crow::response(200, response));
-         });
+            return add_cors_headers(crow::response(200, response)); });
 
         // POST /park
         CROW_ROUTE(app, "/park").methods(crow::HTTPMethod::Post)([&lot](const crow::request &req)
-        {
+                                                                 {
             auto body = crow::json::load(req.body);
 
             if (!body || !body.has("plate")) {
@@ -127,12 +125,11 @@ int main()
                 fail_res["status"] = "failed";
                 fail_res["message"] = "Parking lot is full";
                 return add_cors_headers(crow::response(409, fail_res));
-            }
-        });
+            } });
 
         // 3. POST /checkout
         CROW_ROUTE(app, "/checkout").methods(crow::HTTPMethod::Post)([&lot](const crow::request &req)
-        {
+                                                                     {
             auto body = crow::json::load(req.body);
 
             if (!body || !body.has("plate")) {
@@ -154,8 +151,7 @@ int main()
                 res["status"] = "failed";
                 res["message"] = "Checkout failed. Plate not found.";
                 return add_cors_headers(crow::response(404, res));
-            }
-        });
+            } });
 
         // Start the server on port 8080 with multiple threads
         std::cout << "[INFO] Parking Lot Server listening on port 8080...\n";

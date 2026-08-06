@@ -1,4 +1,4 @@
-#include "../include/Ticket.h"
+#include "Ticket.h"
 
 Ticket::Ticket(std::string plate, int floor, int spot, double rate)
     : licensePlate(std::move(plate)), floorNumber(floor), spotNumber(spot), hourlyRate(rate)
