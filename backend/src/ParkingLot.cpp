@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Parkinglot.h"
+#include "ParkingLot.h"
 ParkingLot::ParkingLot()
 {
     db.recoverState();
@@ -137,7 +137,7 @@ int ParkingLot::getTotalAvailableSpots() const
     return avail;
 }
 
-const std::vector<Level>& ParkingLot::getLevels() const
+const std::vector<Level> &ParkingLot::getLevels() const
 {
     return levels;
 }
