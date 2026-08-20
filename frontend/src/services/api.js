@@ -3,7 +3,7 @@
  * Base URL defaults to http://localhost:8080 (or /api when running with Vite proxy)
  */
 
-export const DEFAULT_BASE_URL = 'http://localhost:8080';
+export const DEFAULT_BASE_URL = 'https://parking-lot-system-1-tdw6.onrender.com';
 
 let currentBaseUrl = DEFAULT_BASE_URL;
 
