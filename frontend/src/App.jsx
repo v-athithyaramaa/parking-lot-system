@@ -14,7 +14,6 @@ import {
 import { Cpu, Database, CheckCircle2, ShieldCheck, ArrowUpRight, Terminal } from 'lucide-react';
 
 export default function App() {
-  // Application State
   const [backendStatus, setBackendStatus] = useState({ status: 'checking', message: '' });
   const [checkingStatus, setCheckingStatus] = useState(false);
   const [parkLoading, setParkLoading] = useState(false);
@@ -22,8 +21,6 @@ export default function App() {
   const [toasts, setToasts] = useState([]);
   const [recentTicket, setRecentTicket] = useState(null);
   const [recentCheckout, setRecentCheckout] = useState(null);
-
-  // Active parked vehicles in this session (persisted in localStorage)
   const [activeVehicles, setActiveVehicles] = useState(() => {
     try {
       const saved = localStorage.getItem('parked_vehicles_session');
@@ -33,7 +30,6 @@ export default function App() {
     }
   });
 
-  // Audit Logs (persisted in localStorage)
   const [logs, setLogs] = useState(() => {
     try {
       const saved = localStorage.getItem('parking_audit_logs');
@@ -43,7 +39,6 @@ export default function App() {
     }
   });
 
-  // Sync state to localStorage
   useEffect(() => {
     try {
       localStorage.setItem('parked_vehicles_session', JSON.stringify(activeVehicles));
@@ -56,7 +51,6 @@ export default function App() {
     } catch (_) {}
   }, [logs]);
 
-  // Toast Dispatcher Helper
   const addToast = useCallback((toast) => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
     setToasts((prev) => [...prev, { id, ...toast }]);
@@ -66,7 +60,6 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Check Backend Health
   const checkBackendHealth = useCallback(async () => {
     setCheckingStatus(true);
     try {
@@ -93,21 +86,18 @@ export default function App() {
     }
   }, []);
 
-  // Initial health check & periodic polling every 20s
   useEffect(() => {
     checkBackendHealth();
     const interval = setInterval(checkBackendHealth, 20000);
     return () => clearInterval(interval);
   }, [checkBackendHealth]);
 
-  // Handle Park Action
   const handlePark = async (plate, type) => {
     setParkLoading(true);
     try {
       const res = await parkVehicle(plate, type);
 
       if (res.success) {
-        // Update active vehicles
         const newVehicle = {
           plate: res.plate,
           type: res.type || type,
@@ -118,14 +108,12 @@ export default function App() {
         };
 
         setActiveVehicles((prev) => {
-          // Remove if exists then add
           const filtered = prev.filter((v) => v.plate !== res.plate);
           return [...filtered, newVehicle];
         });
 
         setRecentTicket(newVehicle);
 
-        // Add to logs
         setLogs((prev) => [
           {
             id: Date.now().toString(),
@@ -141,7 +129,6 @@ export default function App() {
           ...prev.slice(0, 49),
         ]);
 
-        // Show Toast
         addToast({
           type: 'success',
           title: 'Vehicle Parked Successfully',
@@ -153,7 +140,6 @@ export default function App() {
 
         return true;
       } else {
-        // Backend returned failure (e.g. 409 Lot Full or 400 Bad Request)
         setLogs((prev) => [
           {
             id: Date.now().toString(),
@@ -187,14 +173,12 @@ export default function App() {
     }
   };
 
-  // Handle Checkout Action
   const handleCheckout = async (plate) => {
     setCheckoutLoading(true);
     try {
       const res = await checkoutVehicle(plate);
 
       if (res.success) {
-        // Remove from active list
         setActiveVehicles((prev) => prev.filter((v) => v.plate !== res.plate));
 
         const checkoutInfo = {
@@ -204,7 +188,6 @@ export default function App() {
         };
         setRecentCheckout(checkoutInfo);
 
-        // Add to logs
         setLogs((prev) => [
           {
             id: Date.now().toString(),
@@ -217,7 +200,6 @@ export default function App() {
           ...prev.slice(0, 49),
         ]);
 
-        // Show Toast
         addToast({
           type: 'success',
           title: 'Vehicle Checked Out',
@@ -227,7 +209,6 @@ export default function App() {
 
         return true;
       } else {
-        // Failure (e.g. 404 Plate not found)
         setLogs((prev) => [
           {
             id: Date.now().toString(),
@@ -267,19 +248,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 flex flex-col justify-between selection:bg-emerald-500/20 selection:text-emerald-300">
-      {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={removeToast} />
 
-      {/* Main Header */}
       <Header
         backendStatus={backendStatus}
         onRefreshStatus={checkBackendHealth}
         checkingStatus={checkingStatus}
       />
 
-      {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-        {/* Top Operational Status Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/80 backdrop-blur flex items-center gap-3.5">
             <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -343,16 +320,13 @@ export default function App() {
           </div>
         </div>
 
-        {/* Primary Action Cards: Park Vehicle & Checkout Vehicle */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-          {/* Card 1: Park Vehicle */}
           <ParkCard
             onPark={handlePark}
             loading={parkLoading}
             recentTicket={recentTicket}
           />
 
-          {/* Card 2: Checkout Vehicle */}
           <CheckoutCard
             onCheckout={handleCheckout}
             loading={checkoutLoading}
@@ -361,7 +335,6 @@ export default function App() {
           />
         </div>
 
-        {/* Live Multi-Level Spot Visualizer */}
         <SpotVisualizer
           activeVehicles={activeVehicles}
           onQuickCheckout={handleCheckout}
@@ -371,11 +344,9 @@ export default function App() {
           spotsPerLevel={6}
         />
 
-        {/* Activity Audit Log */}
         <ActivityLog logs={logs} onClearLogs={clearLogs} />
       </main>
 
-      {/* Modern Minimal Footer */}
       <footer className="w-full border-t border-zinc-800/80 bg-zinc-950/60 py-6 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
           <div className="flex items-center gap-2">
