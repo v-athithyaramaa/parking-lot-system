@@ -21,6 +21,7 @@ public:
     ParkingLot &operator=(const ParkingLot &) = delete;
 
     void addLevel(int numSpots);
+    void restoreStateFromDB();
     std::unique_ptr<Ticket> parkVehicle(std::unique_ptr<Vehicle> &vehicle);
     bool freeSpot(int floorNumber, int spotNumber);
     void displayAvailability() const;

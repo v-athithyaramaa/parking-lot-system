@@ -39,6 +39,9 @@ int main()
         lot.addLevel(6); // Floor 2
         lot.addLevel(6); // Floor 3
 
+        // Now that memory layout is set, restore state from Database
+        lot.restoreStateFromDB();
+
         // GET /availability
         CROW_ROUTE(app, "/availability")
         ([&lot]()

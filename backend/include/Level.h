@@ -12,6 +12,7 @@ public:
     Level(int floor, int numSpots);
 
     int parkVehicle(std::unique_ptr<Vehicle>& vehicle);
+    bool restoreVehicleToSpot(std::unique_ptr<Vehicle>& vehicle, int spotNumber);
 
     bool freeSpot(int spotNumber);
     int getAvailableSpots() const;

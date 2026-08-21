@@ -1,14 +1,35 @@
 #include <iostream>
 #include "ParkingLot.h"
+#include "Car.h"
+#include "Motorcycle.h"
+#include "Truck.h"
+
 ParkingLot::ParkingLot()
 {
-    db.recoverState();
 }
 
 ParkingLot &ParkingLot::getInstance()
 {
     static ParkingLot instance;
     return instance;
+}
+
+void ParkingLot::restoreStateFromDB()
+{
+    std::lock_guard<std::mutex> lock(lotMutex);
+    std::vector<VehicleRecord> records = db.getAllVehicles();
+    for (const auto& record : records)
+    {
+        std::unique_ptr<Vehicle> vehicle;
+        if (record.type == "Car") vehicle = std::make_unique<Car>(record.plate);
+        else if (record.type == "Motorcycle") vehicle = std::make_unique<Motorcycle>(record.plate);
+        else if (record.type == "Truck") vehicle = std::make_unique<Truck>(record.plate);
+
+        if (vehicle && record.floor > 0 && record.floor <= levels.size())
+        {
+            levels[record.floor - 1].restoreVehicleToSpot(vehicle, record.spot);
+        }
+    }
 }
 
 void ParkingLot::addLevel(int numSpots)

@@ -58,3 +58,19 @@ void Database::recoverState()
     }
     std::cout << "---------------------------------\n";
 }
+
+std::vector<VehicleRecord> Database::getAllVehicles()
+{
+    std::vector<VehicleRecord> records;
+    SQLite::Statement query(db, "SELECT * FROM parked_vehicles");
+    while (query.executeStep())
+    {
+        VehicleRecord vr;
+        vr.plate = query.getColumn(0).getString();
+        vr.type = query.getColumn(1).getString();
+        vr.floor = query.getColumn(2).getInt();
+        vr.spot = query.getColumn(3).getInt();
+        records.push_back(vr);
+    }
+    return records;
+}

@@ -2,6 +2,15 @@
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <string>
 
+#include <vector>
+
+struct VehicleRecord {
+    std::string plate;
+    std::string type;
+    int floor;
+    int spot;
+};
+
 class Database
 {
 private:
@@ -14,4 +23,5 @@ public:
     void removeVehicle(const std::string &plate);
     void recoverState();
     bool getVehicleLocation(const std::string &plate, int &floorNumber, int &spotNumber);
+    std::vector<VehicleRecord> getAllVehicles();
 };

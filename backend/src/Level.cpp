@@ -30,6 +30,19 @@ int Level::parkVehicle(std::unique_ptr<Vehicle> &vehicle)
     return -1;
 }
 
+bool Level::restoreVehicleToSpot(std::unique_ptr<Vehicle> &vehicle, int spotNumber)
+{
+    for (auto &spot : spots)
+    {
+        if (spot.getSpotNumber() == spotNumber && spot.isAvailable() && spot.getSpotType() == vehicle->getType())
+        {
+            spot.parkVehicle(std::move(vehicle));
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Level::freeSpot(int spotNumber)
 {
     for (auto &spot : spots)
