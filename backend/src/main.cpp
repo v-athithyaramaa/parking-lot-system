@@ -109,7 +109,15 @@ int main()
                 return add_cors_headers(crow::response(400, err_res));
             }
 
-            std::unique_ptr<Ticket> ticket = lot.parkVehicle(vehicle);
+            std::unique_ptr<Ticket> ticket;
+            try {
+                ticket = lot.parkVehicle(vehicle);
+            } catch (const std::invalid_argument& e) {
+                crow::json::wvalue err_res;
+                err_res["status"] = "failed";
+                err_res["message"] = e.what();
+                return add_cors_headers(crow::response(400, err_res));
+            }
 
             if (ticket) {
                 crow::json::wvalue success_res;

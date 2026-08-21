@@ -43,6 +43,13 @@ std::unique_ptr<Ticket> ParkingLot::parkVehicle(std::unique_ptr<Vehicle> &vehicl
     double rate = vehicle->calculateFee();
     std::string plate = vehicle->getLicensePlate();
 
+    // Check if vehicle is already parked to prevent duplicates
+    int dummyFloor = 0, dummySpot = 0;
+    if (db.getVehicleLocation(plate, dummyFloor, dummySpot))
+    {
+        throw std::invalid_argument("Vehicle with this license plate is already parked.");
+    }
+
     std::string typeString = "Unknown";
     if (vehicle->getType() == VehicleType::Car)
     {
