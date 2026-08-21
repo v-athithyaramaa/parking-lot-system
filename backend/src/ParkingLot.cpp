@@ -40,14 +40,10 @@ std::unique_ptr<Ticket> ParkingLot::parkVehicle(std::unique_ptr<Vehicle> &vehicl
 {
     std::lock_guard<std::mutex> lock(lotMutex);
 
-    // Grab ALL data BEFORE moving the vehicle
     double rate = vehicle->calculateFee();
     std::string plate = vehicle->getLicensePlate();
 
-    // --- THE FIX: Convert the Enum to a String ---
     std::string typeString = "Unknown";
-    // NOTE: If your enum uses lowercase (like VehicleType::Car or just CAR),
-    // change the VehicleType::CAR below to match your exact enum definition in Vehicle.h!
     if (vehicle->getType() == VehicleType::Car)
     {
         typeString = "Car";
@@ -67,10 +63,7 @@ std::unique_ptr<Ticket> ParkingLot::parkVehicle(std::unique_ptr<Vehicle> &vehicl
         int spotNum = level.parkVehicle(vehicle);
         if (spotNum != -1)
         {
-            // Pass typeString instead of type
             db.saveVehicle(plate, typeString, currentFloor, spotNum);
-
-            // Success! Generate the ticket on the Heap and return it to the driver
             return std::make_unique<Ticket>(plate, currentFloor, spotNum, rate);
         }
         currentFloor++;
@@ -83,13 +76,7 @@ bool ParkingLot::freeSpot(int floorNumber, int spotNumber)
     std::lock_guard<std::mutex> lock(lotMutex);
     if (floorNumber > 0 && floorNumber <= levels.size())
     {
-        // Actually free the spot in memory
         bool success = levels[floorNumber - 1].freeSpot(spotNumber);
-
-        // If successfully freed, remove from database
-        // Note: For a true production app, we'd need the plate number here to delete it,
-        // but this will require querying the Level to see which car was just removed.
-        // For now, this is structurally where it belongs!
         return success;
     }
     return false;
